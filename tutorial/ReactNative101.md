@@ -97,12 +97,15 @@ Para iniciar un nuevo proyecto:
 *A partir de react-native-cli v1.2.0 instalará las dependencias mediante yarn.*
 
 Al iniciar un nuevo proyecto se creará la siguiente estructura de directorios y archivos ademas de instalar las dependencias necesarias:
+
 ![Estructura creada por RN](./img/estructura.png)
 
 Los archivos **index.android.js** y **index.ios.js** son los *main* que se utilizarán para construir la aplicación para cada plataforma:
+
 ![index.android archivo principal de RN](./img/mainIDE.png)
 
 Package.json:
+
 ![package.json](./img/packagejson.png)
 
 ### Probar la instalación en el emulador o dispositivo
@@ -118,9 +121,11 @@ Para construir la aplicación e instalarla en el dispositivo:
 `$ react-native run-android`
 
 Si todo va bien, el dispositivo debe ejecutar la aplicación base de react native:
+
 ![React Native Base App](./img/RNBaseApp.png)
 
 En la terminal debe estar ejecutándose el packager:
+
 ![React NAtive Packager](./img/packager.png)
 
 Algunas veces el packager crashea y es necesario iniciarlo nuevamente con `$ npm start`
