@@ -212,3 +212,375 @@ Esta aplicación ejemplo de React Native permite explorar los componentes y esti
 Las APIs para cada plataforma permiten que las aplicaciones tengan **una experiencia de usuario mucho mas natural**. Incluyen todo desde **almacenamiento de datos, servicios de ubicación, acceder al hardware como la cámara, etc.** conforme mas avanza el desarrollo de RN se crean mas y mas APIs.
 
 ![Host APIs](./img/hostapis.png)
+
+### App Registry
+
+AppRegistry es el componente de entrada para ejecutar una aplicación de React Native en cualquier plataforma.
+
+```javascript
+AppRegistry.registerComponent('ReactNative101', () => ReactNative101);
+
+```
+
+Para hacer cambios en el componente principal, tambien hay que modificar el MainActivity.java
+
+![MainAactivity](./img/mainappjava.png)
+
+### Estilos en RN
+
+Como se menciona anteriormente, RN utilza estilos muy similares a los de CSS.
+Para definir un estilo puede definirse un objeto de javascript o mediante el modulo StyleSheet y se asigna a la prop style del componente. Tambien es posible asignar un array de estilos, el último elemento tendrá prioridad, para permitir herencia de estilos.
+
+
+```javascript
+const styles = StyleSheet.create({
+  bigblue: {
+    color: 'blue',
+    fontWeight: 'bold',
+    fontSize: 30,
+  },
+  red: {
+    color: 'red',
+  },
+});
+
+class LotsOfStyles extends Component {
+  render() {
+    return (
+      <View>
+        <Text style={styles.red}>just red</Text>
+        <Text childStyle={styles.red} style={styles.bigblue}>
+			just bigblue
+			<Text style={this.props.childStyle}> Red </Text>
+		</Text>
+        <Text style={[styles.bigblue, styles.red]}>bigblue, then red</Text>
+        <Text style={[styles.red, styles.bigblue]}>red, then bigblue</Text>
+      </View>
+    );
+  }
+}
+```
+
+#### Flexbox
+
+Con Flex es muy fácil hacer que las dimensiones de nuestros componentes se ajusten deacuerdo al espacio disponible.
+
+La propiedad flex indica la proporción a utilizar del espacio en el que está contenido.
+
+En el siguiente ejemplo, el contenedor del View es la ventana de la App(con las dimensiones de la pantalla) al tener `{flex :1}` al ser el único elemento su proporción es 1:1, y ocupa toda la altura de la pantalla.
+
+Los siguientes tres Views hijos, tienen una proporción 1:6, 2:6 y 3:6, por lo que cada uno ajusta sus dimensiones respectivamente.
+
+Cabe destacar que en RN por defecto el flexDirection es por defecto column y flex sólo soporta un solo número.
+
+```javascript
+import React, { Component } from 'react';
+import { AppRegistry, View } from 'react-native';
+class FlexDimensionsBasics extends Component {
+  render() {
+    return (
+      // Try removing the `flex: 1` on the parent View.
+      // The parent will not have dimensions, so the children can't expand.
+      // What if you add `height: 300` instead of `flex: 1`?
+      <View style={{flex: 1}}>
+        <View style={{flex: 1, backgroundColor: 'powderblue'}} />
+        <View style={{flex: 2, backgroundColor: 'skyblue'}} />
+        <View style={{flex: 3, backgroundColor: 'steelblue'}} />
+      </View>
+    );
+  }
+}
+AppRegistry.registerComponent('AwesomeProject', () => FlexDimensionsBasics);
+```
+
+![Basic Flexbox](./img/basicflex.png)
+
+flexDirection define el eje primario en el que los componentes hijos serán organizados, ya sea vertical(column) u horizontal(row).
+
+justifyContent determina como serán distribuidos los elementos hijo, con respecto al eje primario, permitiendo acomodarlos al inicio del flexbox, al final, centrados, con espacios, etc. (flex-start, center, flex-end, space-around, y space-between)
+
+alignItems también determina la distribución de los elementos hijo pero con respecto al eje secundario. (flex-start, center, flex-end, y stretch)
+
+El siguiente ejemplo muestra 3 Views con dimensiones fijas contenidos en un View que los centra vertical y horizontalmente.
+
+```javascript
+import React, { Component } from 'react';
+import { AppRegistry, View } from 'react-native';
+
+class AlignItemsBasics extends Component {
+  render() {
+    return (
+      // Try setting `alignItems` to 'flex-start'
+      // Try setting `justifyContent` to `flex-end`.
+      // Try setting `flexDirection` to `row`.
+      <View style={{
+        flex: 1,
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}>
+        <View style={{width: 50, height: 50, backgroundColor: 'powderblue'}} />
+        <View style={{width: 50, height: 50, backgroundColor: 'skyblue'}} />
+        <View style={{width: 50, height: 50, backgroundColor: 'steelblue'}} />
+      </View>
+    );
+  }
+};
+
+
+AppRegistry.registerComponent('AwesomeProject', () => AlignItemsBasics);
+```
+
+![Flex Centered](./img/flexcenter.png)
+
+Flexbox es muy práctico de utilizar, sin embargo, conforme las versiones han cambiado algunas aplicaciones tienden a romperse debido a los cambios realizados en la implementación de flexbox.
+
+[Propiedades completas del layout](https://facebook.github.io/react-native/docs/layout-props.html)
+
+### Verificar conexión a internet
+
+NetInfo es un modulo incluido en RN que nos permite saber el estado actual de la conexión a internet. Es posible integrar un listener en algun componente para saber de los cambios en la conexión a internet como en el siguiiente ejemplo:
+
+```javascript
+class IsConnected extends React.Component {
+  state = {
+    isConnected: null,
+  };
+
+  componentDidMount() {
+    NetInfo.isConnected.addEventListener(
+        'change',
+        this._handleConnectivityChange
+    );
+    NetInfo.isConnected.fetch().done(
+        (isConnected) => { this.setState({isConnected}); }
+    );
+  }
+
+  componentWillUnmount() {
+    NetInfo.isConnected.removeEventListener(
+        'change',
+        this._handleConnectivityChange
+    );
+  }
+
+  _handleConnectivityChange = (isConnected) => {
+    this.setState({
+      isConnected,
+    });
+  };
+
+  render() {
+    return (
+        <View>
+          <Text>{this.state.isConnected ? 'Online' : 'Offline'}</Text>
+        </View>
+    );
+  }
+
+```
+
+En Android es necesario agregar el permiso para acceder al estado de red del dispositivo en el archivo AndroidManifest.xml:
+
+```xml
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> Asynchronously determine if the device is connected and details about that connection.
+```
+También es posible determinar el tipo de conexión
+
+```javascript
+class ConnectionInfoCurrent extends React.Component {
+  state = {
+    connectionInfo: null,
+  };
+
+  componentDidMount() {
+    NetInfo.addEventListener(
+        'change',
+        this._handleConnectionInfoChange
+    );
+    NetInfo.fetch().done(
+        (connectionInfo) => { this.setState({connectionInfo}); }
+    );
+  }
+
+  componentWillUnmount() {
+    NetInfo.removeEventListener(
+        'change',
+        this._handleConnectionInfoChange
+    );
+  }
+
+  _handleConnectionInfoChange = (connectionInfo) => {
+    this.setState({
+      connectionInfo,
+    });
+  };
+
+  render() {
+    return (
+        <View>
+          <Text>{this.state.connectionInfo}</Text>
+        </View>
+    );
+  }
+}
+```
+
+Tipos de conectividad en Android.
+
+- **NONE:** device is offline
+- **BLUETOOTH:** The Bluetooth data connection.
+- **DUMMY:** Dummy data connection.
+- **ETHERNET:** The Ethernet data connection.
+- **MOBILE:** The Mobile data connection.
+- **MOBILE_DUN:** A DUN-specific Mobile data connection.
+- **MOBILE_HIPRI:** A High Priority Mobile data connection.
+- **MOBILE_MMS:** An MMS-specific Mobile data connection.
+- **MOBILE_SUPL:** A SUPL-specific Mobile data connection.
+- **VPN:** A virtual network using one or more native bearers. Requires API Level 21
+- **WIFI:** The WIFI data connection.
+- **WIMAX:** The WiMAX data connection.
+- **UNKNOWN:** Unknown data connection.
+
+
+[Dcoumentación completa de NetInfo](https://facebook.github.io/react-native/docs/netinfo.html)
+
+### Bluetooth
+
+Existen algunas librerías externas para gestionar la conexión Bluetooth, la mas popular es [react-native-ble-manager](https://github.com/innoveit/react-native-ble-manager).
+
+Se instala mediante npm y el ract native link se encargará de modificar los archivos correspondientes para cada plataforma para que el módulo esté disponible.
+
+```shell
+$ npm i --save react-native-ble-manager
+$ react-native link
+```
+
+![Archivos modificados por RN link](./img/difflink.png)
+
+Los permisos de android pueden agregarse desde el AndroidManifest.xml o gestionarse con el modulo [PermissionAndroid](https://facebook.github.io/react-native/docs/permissionsandroid.html)
+
+```xml
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    ...
+    <uses-permission android:name="android.permission.BLUETOOTH"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
+    <uses-permission-sdk-23 android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+
+    <!-- Add this line if your application always requires BLE. More info can be found on:
+         https://developer.android.com/guide/topics/connectivity/bluetooth-le.html#permissions
+      -->
+    <uses-feature android:name="android.hardware.bluetooth_le" android:required="true"/>
+
+    <uses-sdk
+        android:minSdkVersion="19"
+        ...
+```
+Programaticamente
+```javascript
+if (Platform.OS === 'android' && Platform.Version >= 23) {
+  PermissionsAndroid.checkPermission(PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION).then((result) => {
+    if (result) {
+      console.log("Permission is OK");
+    } else {
+      PermissionsAndroid.requestPermission(PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION).then((result) => {
+        if (result) {
+          console.log("User accept");
+        } else {
+          console.log("User refuse");
+        }
+      });
+    }
+  })
+}
+```
+El ejemplo completo de uso de este módulo se encuentra en el repositorio.
+
+Se inicia el módulo cuando se monta el componente:
+
+```javascript
+BleManager.start({showAlert: false})
+  .then(() => {
+    // Success code
+    console.log('Module initialized');
+  });
+
+```
+
+Se asigna un botón para activar el scaneo con la función scan de BLEManager, que recibe como parámetros un array de Strings con los UUIDs de los servicios a buscar, y un entero que es la cantidad de segundos a escanear:
+
+```javascript
+BleManager.scan([], 5)
+  .then(() => {
+    // Success code
+    console.log('Scan started');
+  });
+```
+
+Despuès de escanear los dispositivos, la conexión se realiza mediante Blemanager.connect que recibe como parámetro el UUID/Mac Address del dispositivo a conectarse:
+
+```javascript
+BleManager.connect('XX:XX:XX:XX:XX:XX:')
+  .then((peripheralInfo) => {
+    // Success code
+    console.log('Connected');
+    console.log(peripheralInfo);
+  })
+  .catch((error) => {
+    // Failure code
+    console.log(error);
+  });
+```
+
+Para escribir en el dispositivo
+
+```javascript
+var base64 = require('base64-js');
+var datosEnBase64 = base64.fromByteArray(Datos);
+
+BleManager.write('UUID/MAC Dispositivo', 'UUID del servicio', 'UUID de la caràcterisca', datosEnBase64)
+  .then(() => {
+    // Success code
+    console.log('Write: ' + datosEnBase64);
+  })
+  .catch((error) => {
+    // Failure code
+    console.log(error);
+  });
+```
+
+Para lectura de datos:
+
+```javascript
+BleManager.read('UUID/MAC Dispositivo', 'UUID del servicio', 'UUID de la caràcterisca')
+  .then((readData) => {
+    // Success code
+    console.log('Read: ' + readData);
+  })
+  .catch((error) => {
+    // Failure code
+    console.log(error);
+  });
+```
+
+Otras funciones que incluye el módulo son:
+
+- stopScan(): Detiene el escanéo de dispositivos
+- disconnect(IdDispositivo): Desconecta el dispositivo indicado.
+- enableBluetooth(): Crea una petición para que el usuario active el bluetooth del dispositivo
+- getConnectedPeripherals(serviceUUIDs): Regresa todos los dispositivos conectados
+- getDiscoveredPeripherals(): Regresa los dispositivos que se descubieron tras el escanéo
+- isPeripheralConnected(peripheralId, serviceUUIDs): Verifica si un dispositivo está conectado, regresa true o false
+
+
+
+Listeners de BLEManagaer(todos tienen el prefijo BleManager)
+- StopScan: Se detuvo el escaneo
+- DidUpdateState: Se cambió el estado de BLE (on/off)
+- DiscoverPeripheral: Se encontró un nuevo dispositivo
+- DidUpdateValueForCharacteristic: Una carácterística a notificado un nuevo valor
+- ConnectPeripheral: Se ha conectado un dispositivo
+- DisconnectPeripheral: Se ha desconectado un dispositvo
+
+
+[Documentación completa de BLEManager](https://github.com/innoveit/react-native-ble-manager)
