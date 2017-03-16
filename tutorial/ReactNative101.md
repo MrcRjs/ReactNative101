@@ -584,3 +584,140 @@ Listeners de BLEManagaer(todos tienen el prefijo BleManager)
 
 
 [Documentación completa de BLEManager](https://github.com/innoveit/react-native-ble-manager)
+
+### Almacenamiento
+
+#### AsyncStorage
+
+El módulo AsyncStorage es el sistema de almacenamiento global llave-valor de React Native es el análogo a LocalStorage.
+
+
+```javascript
+try {
+  await AsyncStorage.setItem('@MySuperStore:key', 'I like to save it.');
+} catch (error) {
+  // Error saving data
+}
+
+try {
+  const value = await AsyncStorage.getItem('@MySuperStore:key');
+  if (value !== null){
+    // We have data!!
+    console.log(value);
+  }
+} catch (error) {
+  // Error retrieving data
+}
+```
+
+RN **recomienda utilizar una abstracción por encima de la API** en lugar de hacer uso de esta directamente.
+
+#### Redux y state persistente
+
+Los siguientes módulos son requeridos(no esas versiones en específico) para configurar redux de manera persistente, con logger y thunk para hacer dispatch de funciones.
+
+![Redux Requeriments](./img/reduxReq.png)
+
+```javascript
+import { applyMiddleware, compose, createStore } from 'redux'
+import { autoRehydrate, persistStore } from 'redux-persist'
+import { AsyncStorage } from 'react-native'
+import CreateLogger from 'redux-logger'
+import { Provider } from 'react-redux'
+import React from 'react'
+import Reducer from './reducers'
+import thunkMiddleware from 'redux-thunk'
+
+// Middleware logging actions in DEV mode
+const loggerMiddleware = CreateLogger({ predicate: () => __DEV__ })
+
+function configureStore (initialState) {
+	const enhancer = compose(
+		applyMiddleware(
+			thunkMiddleware, // dispatch() functions
+			loggerMiddleware,
+		),
+		autoRehydrate({ log: __DEV__ }),
+	)
+	return createStore(Reducer, initialState, enhancer)
+}
+
+export const store = configureStore({/*Initial state*/})
+
+// If purge needed
+// persistStore(store, { storage: AsyncStorage }).purge()
+persistStore(store, { storage: AsyncStorage })
+
+const App = () => {
+	return (
+		<Provider store={ store }>
+			<MainView/>
+		</Provider>
+	)
+}
+
+export default App
+```
+
+Reducers/index.js:
+
+```javascript
+import * as fooReducers from './foos'
+import * as barReducers from './bars'
+import { combineReducers } from 'redux'
+
+export default combineReducers(Object.assign(
+	fooReducers,
+	barReducers,
+))
+```
+
+Reducers/foos.js:
+
+```javascript
+import * as types from '../actions/types'
+import createReducer from '../lib/createReducer'
+
+export const toggleTutorial = createReducer({}, {
+	[types.TOGGLE_FOO] (state) {
+		let newState = {
+			...state,
+			foo: !state.foo,
+		}
+		return newState
+	},
+})
+```
+lib/createReducer.js:
+```javascript
+export default function createReducer (initialState, handlers) {
+	return function reducer (state = initialState, action) {
+		if (handlers.hasOwnProperty(action.type))
+			return handlers[action.type](state, action)
+		else
+			return state
+	}
+}
+```
+
+actions/index.js:
+
+```javascript
+import * as fooActions from './foos'
+import * as barActions from './bar'
+
+export const ActionCreators = Object.assign({},
+  FooActions,
+  BarActions
+)
+```
+
+actions/types.js
+```javascript
+export const TOGGLE_FOO = 'TOGGLE_FOO'
+export const TOGGLE_BAR = 'TOGGLE_BAR'
+```
+
+El software necesario es practicamente el mismo utilizado en React Web con la diferencia de hacer uso de AsyncStorage para el almacenamiento.
+
+El redux-logger **sólo es visible cuando se debuggea la aplicación en chrome**.
