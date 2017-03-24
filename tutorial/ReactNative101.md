@@ -83,6 +83,10 @@ En el dispositivo android el **modo desarrollador** y la **depuración USB** deb
 
 El emulador de android studio tiende a ser muy lento, se recomienda la instalación de **[Genymotion](https://www.genymotion.com/fun-zone/)**.
 
+Genymotion debe utilizar ADB del Android SDK,   deben modificarse las opciones.
+
+![Genymotion ADB](./img/genyadb.png)
+
 
 ### Instalación de RN CLI
 
@@ -721,3 +725,74 @@ export const TOGGLE_BAR = 'TOGGLE_BAR'
 El software necesario es practicamente el mismo utilizado en React Web con la diferencia de hacer uso de AsyncStorage para el almacenamiento.
 
 El redux-logger **sólo es visible cuando se debuggea la aplicación en chrome**.
+
+### Material Design
+
+Actualmente no existe ningun módulo que implemente tantos componentes como los que incluye Materialize CSS, sin embargo, existen algunos módulos que complementándose cubren varios componente útiles.
+
+#### React Native Material UI
+
+[Github Repo](https://github.com/xotahal/react-native-material-ui)
+
+Una de las librerías mas completas, desafortunadamente su documentación todavía no está terminada.
+
+![Componentes RNMUI](https://raw.githubusercontent.com/xotahal/react-native-material-ui-demo-app/master/resources/bottom-navigation-anim.gif)
+
+**Componentes:**
+- Action Button
+- Avatar
+- Badge
+- Bottom Navigation
+- Button
+- Card
+- Checkbox
+- Dialog
+- Divider
+- Drawer
+- Icon
+- Icon toggles
+- List item
+- Radio button
+- Subheader
+- Toolbar
+
+Tienen disponible una [Demo App](https://github.com/xotahal/react-native-material-ui-demo-app) para visualizar sus componentes.
+
+#### React Native Material Kit
+
+[Github Repo](https://github.com/xinthink/react-native-material-kit)
+
+A pesar de tener muy pocos componentes, están muy bien realizados, y tienen buenas animaciones.
+
+![Tex Fields](https://cloud.githubusercontent.com/assets/390805/9085678/8280484a-3bb1-11e5-9354-a244b0520736.gif)
+
+**Componentes:**
+- Buttons
+- Cards
+- Loading
+	- Progress bar
+	- Spinner
+- Sliders
+	- Range Slider
+- Textfields
+- Toggles
+	- Checkbox
+	- Radio button
+	- Icon toggle
+	- Switch
+
+#### React Native Material Design
+
+[Github Repo](https://github.com/binggg/react-native-material-design-styles)
+
+Este módulo incluye componentes para estilizar textos y provee de un componente con los colores de diseño de Material.
+
+**Componentes:**
+- Color
+- Typography
+
+![Typography](https://raw.githubusercontent.com/binggg/react-native-material-design-styles/master/typography.png)
+
+![Color](https://raw.githubusercontent.com/binggg/react-native-material-design-styles/master/textColor.png)
+
+![Colores Disponibles](https://raw.githubusercontent.com/binggg/react-native-material-design-styles/master/allColors.jpg)
