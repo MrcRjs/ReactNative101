@@ -796,3 +796,126 @@ Este módulo incluye componentes para estilizar textos y provee de un componente
 ![Color](https://raw.githubusercontent.com/binggg/react-native-material-design-styles/master/textColor.png)
 
 ![Colores Disponibles](https://raw.githubusercontent.com/binggg/react-native-material-design-styles/master/allColors.jpg)
+
+## Alternativa a navigator
+
+A pesar de que Navigator es el componente mas utilizado para la navegación en la aplicación, en el caso de la aplicación que realizamos para el análisis de jitomates decidimos hacer una interfaz similar a la de Snapchat por lo que remplazamos Navigator con ScrollView.
+
+```js
+const App = () => {
+	return (
+		<Provider store={ store }>
+			<Menu
+				initialIndex={ 1 }
+				routes={ [
+					{ component: History },
+					{ component: Camera },
+					{ component: Options },
+				] }
+			/>
+		</Provider>
+	)
+}
+
+```
+
+El componente Menu se encarga de colocar los componentes en su lugar en el ScrollView.
+
+```javascript
+const window = Dimensions.get('window')
+
+const styles = StyleSheet.create({ container: { flex: 1 } })
+
+class Menu extends Component {
+	static propTypes = {
+		horizontal: PropTypes.bool,
+		initialIndex: PropTypes.number,
+		routes: PropTypes.array,
+	}
+
+	static defaultProps = {
+		routes: [],
+		horizontal: true,
+		initialIndex: 1,
+	}
+
+	constructor (props: any, context: any) {
+		super(props, context)
+	}
+
+	componentDidMount () {
+		if (!this.state.tutorial) {
+			const offset = window.width * this.props.initialIndex
+			setTimeout(() => {
+				this._scrollView.scrollTo({
+					animated: false,
+					x: offset,
+				})
+			})
+		}
+		SplashScreen.hide()
+	}
+
+	_scrollTo (offset, animation) {
+		const view = window.width * offset
+		setTimeout(() => {
+			this._scrollView.scrollTo({
+				x: view,
+				animated: animation,
+			})
+		})
+	}
+
+	renderScreens () {
+		const { routes } = this.props
+		const itemStyle = styles.verticalItem
+
+		return routes.map((route, index) => {
+			return (
+				<View key={ index } style={ itemStyle }>
+					<route.component
+						{ ...this.props }
+						scrollTo={ this._scrollTo.bind(this) }
+					/>
+				</View>
+			)
+		})
+	}
+
+	_ScrollView () {
+		const scrollViewStyle = styles.scrollViewVertical
+		return (
+			<ScrollView
+				directionalLockEnabled
+				pagingEnabled
+				bounces={ false }
+				horizontal={ horizontal }
+				ref={ c => this._scrollView = c }
+				scrollEventThrottle={ 32 }
+				showsHorizontalScrollIndicator={ false }
+				showsVerticalScrollIndicator={ false }
+				style={ scrollViewStyle }
+			>
+				{ this.renderScreens() }
+			</ScrollView>
+		)
+	}
+
+	render () {
+		return (
+			<View style={ styles.container }>
+				{
+					this._ScrollView()
+				}
+			</View>
+		)
+	}
+}
+
+```
+
+_ScrollView() es el wrapper principal que se encarga de permitir la funcionalidad scroll parecida a snapchap.
+
+renderScreens() mapea los componentes al scrollView
+
+_scrollTo() permite mover el scrollview a un indice indicado, mediante el ancho de pantalla.
